@@ -1,4 +1,4 @@
-package main
+package blog
 
 import (
 	"context"
@@ -7,28 +7,10 @@ import (
 	"log"
 
 	"github.com/saskaradit/grpc-blog/blogpb"
-	"google.golang.org/grpc"
 )
 
-func main() {
-	fmt.Println("Hello im the blog client")
-
-	opts := grpc.WithInsecure()
-	cc, err := grpc.Dial("localhost:50051", opts)
-	if err != nil {
-		log.Fatalln("Could not connect", err)
-	}
-	defer cc.Close()
-
-	c := blogpb.NewBlogServiceClient(cc)
-	createBlog(c)
-	// readBlog(c, "6114c3ea66cdc314f5dfbcdf")
-	// updateBlog(c, "6114c3ea66cdc314f5dfbcdf")
-	// deleteBlog(c, "6114c3ea66cdc314f5dfbcdf")
-	listBlog(c)
-}
-
-func createBlog(c blogpb.BlogServiceClient) {
+// Create function creates a blog to the mongo
+func Create(c blogpb.BlogServiceClient) {
 	blog := &blogpb.Blog{
 		AuthorId: "Rad",
 		Title:    "Rad First Blog",
@@ -41,7 +23,8 @@ func createBlog(c blogpb.BlogServiceClient) {
 	fmt.Println("Blog has been created", res)
 }
 
-func readBlog(c blogpb.BlogServiceClient, blogID string) {
+// Read function retrieves a single blog
+func Read(c blogpb.BlogServiceClient, blogID string) {
 	_, err := c.ReadBlog(context.Background(), &blogpb.ReadBlogRequest{BlogId: blogID})
 	if err != nil {
 		fmt.Println("Error happenned while reading", err)
@@ -54,7 +37,8 @@ func readBlog(c blogpb.BlogServiceClient, blogID string) {
 	fmt.Println("Blog was read", res)
 }
 
-func deleteBlog(c blogpb.BlogServiceClient, blogID string) {
+// Delete function deletes a single blog
+func Delete(c blogpb.BlogServiceClient, blogID string) {
 	res, err := c.DeleteBlog(context.Background(), &blogpb.DeleteBlogRequest{BlogId: blogID})
 	if err != nil {
 		fmt.Println("Something happenned whle deleting", err)
@@ -62,7 +46,8 @@ func deleteBlog(c blogpb.BlogServiceClient, blogID string) {
 	fmt.Println("Successfully deleted", res)
 }
 
-func updateBlog(c blogpb.BlogServiceClient, blogID string) {
+// Update function updates a single blog
+func Update(c blogpb.BlogServiceClient, blogID string) {
 	newBlog := &blogpb.Blog{
 		Id:       blogID,
 		AuthorId: "Change Author",
@@ -76,7 +61,8 @@ func updateBlog(c blogpb.BlogServiceClient, blogID string) {
 	fmt.Println("Blog was updated", res)
 }
 
-func listBlog(c blogpb.BlogServiceClient) {
+// List function lists all the blogs on the database
+func List(c blogpb.BlogServiceClient) {
 	stream, err := c.ListBlog(context.Background(), &blogpb.ListBlogRequest{})
 	if err != nil {
 		log.Fatalln("error while calling ListBlog RPC", err)
